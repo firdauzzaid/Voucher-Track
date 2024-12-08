@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>History</title>
+</head>
+<body class="bg-gray-200 h-screen">
+    <!-- Header -->
+    <header class="flex justify-between items-center bg-gray-700 text-white p-4">
+        <div class="flex items-center">
+            <img src="./static/images/history.png" alt="Logo" class="w-10 h-10 mr-4">
+        </div>
+        <div>
+            <h1 class="text-xl font-bold text-center flex-grow">Voucher History</h1>
+        </div>
+        <form action="/voucher">
+            <button class="bg-gray-600 px-4 py-2 rounded hover:bg-gray-500">Voucher</button>
+        </form>
+
+    </header>
+    <!-- Kontainer Utama -->
+    <div class="flex h-full">
+        <!-- Body (List of Claimed Vouchers) -->
+        <div class="w-3/4 p-6 bg-white rounded shadow">
+            <h1 class="text-2xl font-bold text-center mb-4">Claimed Vouchers List</h1>
+            <table class="min-w-full bg-white border-collapse border border-gray-300">
+                <thead>
+                    <tr>
+                        <th class="py-2 border">Voucher Name</th>
+                        <th class="py-2 border">Category</th>
+                        <th class="py-2 border">Claimed At</th>
+                        <th class="py-2 border">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for claim in claimed_vouchers %}
+                        <tr class="text-center align-middle">
+                            <td class="py-2 border align-middle">{{ claim['nama'] }}</td>
+                            <td class="py-2 border align-middle">{{ claim['kategori'] }}</td>
+                            <td class="py-2 border align-middle">{{ claim['tanggal_claim'] }}</td>
+                            <td class="py-2 border align-middle">
+                                <form method="POST" action="{{ url_for('delete_claim', claim_id=claim['id']) }}" class="inline">
+                                    <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Sidebar (Right Side) -->
+        <div class="w-1/4 p-6 bg-gray-100 rounded shadow ml-auto">
+            <h1 class="text-2xl font-bold text-center mb-4">History</h1>
+            <div class="space-y-4">
+                <h2 class="text-lg font-semibold">Claimed Vouchers</h2>
+                {% for category, count in claim_count.items() %}
+                    <p class="text-sm">{{ category }}: {{ count }} vouchers</p>
+                {% endfor %}
+                <hr class="my-4">
+                <p class="text-lg font-semibold">Total Claimed Vouchers: {{ total_claimed }}</p>
+            </div>
+        </div>
+    </div>
+    <script>
+    <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            document.addEventListener("DOMContentLoaded", function () {
+              {% for category, message in messages %}
+                alert("{{ message }}");
+              {% endfor %}
+            });
+        {% endif %}
+      {% endwith %}
+    </script>
+</body>
+</html>

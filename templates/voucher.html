@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Voucher</title>
+</head>
+<body class="bg-gray-200 h-screen">
+    <!-- Header -->
+    <header class="flex justify-between items-center bg-gray-700 text-white p-4">
+        <div class="flex items-center">
+            <img src="../static/images/coupon.png" class="w-10 h-10 mr-4">
+        </div>
+        <div>
+            <h1 class="text-xl font-bold text-center flex-grow">Voucher</h1>
+        </div>
+        <form action="/history">
+            <button class="bg-gray-600 px-4 py-2 rounded hover:bg-gray-500">History</button>
+        </form>
+
+    </header>
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="bg-gray-300 w-1/5 h-full p-4">
+            <h2 class="text-lg font-bold mb-4">Categories</h2>
+            <ul class="space-y-4">
+                <li><a href="/voucher?category=all" class="block text-gray-800 hover:underline">All</a></li>
+                {% for category in categories %}
+                <li>
+                    <a href="/voucher?category={{ category }}"
+                       class="block text-gray-800 hover:underline {{ 'font-bold' if category == selected_category else '' }}">
+                        {{ category }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </aside>
+
+        <!-- Voucher Grid -->
+        <main class="flex-1 p-4 bg-gray-100 overflow-y-auto">
+            <h2 class="text-2xl font-bold mb-4">Available Vouchers</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for voucher in vouchers %}
+                <div class="bg-white rounded shadow p-4">
+                    <img src="{{ voucher.foto }}" alt="{{ voucher.nama }}" class="w-full h-32 bg-gray-200 rounded mb-2">
+                    <p class="text-lg font-bold">{{ voucher.nama }}</p>
+                    <p class="text-sm text-gray-500">Category: {{ voucher.kategori }}</p>
+                    <button onclick="claimVoucher({{ voucher.id }})"
+                            class="w-full py-2 bg-gray-700 text-white rounded hover:bg-gray-500">
+                        Claim
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+    <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            document.addEventListener("DOMContentLoaded", function () {
+              {% for category, message in messages %}
+                alert("{{ message }}");
+              {% endfor %}
+            });
+        {% endif %}
+      {% endwith %}
+    </script>
+
+    <script>
+        function claimVoucher(id_voucher) {
+            fetch(`/claim_voucher/${id_voucher}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Voucher claimed successfully!');
+                    location.reload();
+                } else {
+                    alert('Failed to claim voucher: ' + data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
