@@ -1,10 +1,19 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+
+import os
 import pymysql
 import pymysql.cursors
 import base64
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DB_URI')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
 
 db_config = {
     "host": "localhost",
@@ -19,7 +28,10 @@ def get_connection():
     return pymysql.connect(**db_config)
 
 
-@app.route('/login', methods=['GET', 'POST'])
+migrate = Migrate(app, db)
+
+
+@app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
